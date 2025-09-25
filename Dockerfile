@@ -12,8 +12,16 @@ RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/Allo
 # Copy app files
 COPY . /var/www/html/
 
-# Fix permissions
+# Create a writable sessions directory
+RUN mkdir -p /var/www/html/sessions \
+    && chown -R www-data:www-data /var/www/html/sessions \
+    && chmod -R 770 /var/www/html/sessions
+
+# Fix permissions for app
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
+
+# Set PHP session save path
+RUN echo "session.save_path = \"/var/www/html/sessions\"" > /usr/local/etc/php/conf.d/session.ini
 
 EXPOSE 80
